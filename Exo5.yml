@@ -44,11 +44,11 @@ paths:
                   summary: Exemple de commandes
                   value:
                     - identifier: 1
-                      customer_name: "Alice Dupont"
+                      customer_name: "RAND Jimmy"
                       creation_datetime: "2024-08-21T10:30:00Z"
                       total_amount: 1499.98
                     - identifier: 2
-                      customer_name: "Bob Martin"
+                      customer_name: "RAMBOLA favori"
                       creation_datetime: "2024-08-21T14:45:00Z"
                       total_amount: 299.99
 
@@ -68,7 +68,7 @@ paths:
               newOrder:
                 summary: Exemple de nouvelle commande
                 value:
-                  customer_name: "Jean Dupont"
+                  customer_name: "NASA Belouh"
                   total_amount: 199.99
       responses:
         '201':
@@ -152,4 +152,5 @@ components:
   securitySchemes:
     BasicAuth:
       type: http
+
       scheme: basic

@@ -1,0 +1,349 @@
+openapi: 3.0.0
+info:
+  title: API E-commerce Complète
+  version: 1.0.0
+  description: API complète avec tous les points de terminaison
+  contact:
+    name: Support API
+    email: support@api.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Serveur de production
+  - url: https://sandbox-api.example.com/v1
+    description: Serveur de développement
+
+paths:
+  /ping:
+    get:
+      summary: Test de connectivité
+      tags:
+        - Utilitaires
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain:
+              example: pong
+
+  /utilisateurs:
+    get:
+      summary: Récupère la liste des utilisateurs
+      tags:
+        - Utilisateurs
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        '200':
+          description: Liste des utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Utilisateur'
+        '400':
+          description: Paramètres invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+
+  /tâches:
+    get:
+      summary: Récupère toutes les tâches
+      tags:
+        - Tâches
+      responses:
+        '200':
+          description: Liste des tâches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tâche'
+    post:
+      summary: Crée de nouvelles tâches
+      tags:
+        - Tâches
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Tâche'
+      responses:
+        '201':
+          description: Tâches créées
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tâche'
+    delete:
+      summary: Supprime plusieurs tâches
+      tags:
+        - Tâches
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+      responses:
+        '200':
+          description: Tâches supprimées
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tâche'
+
+  /tâches/{id}:
+    get:
+      summary: Récupère une tâche par ID
+      tags:
+        - Tâches
+      parameters:
+        - $ref: '#/components/parameters/idPath'
+      responses:
+        '200':
+          description: Tâche trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tâche'
+        '404':
+          description: Tâche non trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Erreur'
+    delete:
+      summary: Supprime une tâche par ID
+      tags:
+        - Tâches
+      parameters:
+        - $ref: '#/components/parameters/idPath'
+      responses:
+        '200':
+          description: Tâche supprimée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tâche'
+
+  /produits:
+    get:
+      summary: Recherche des produits
+      tags:
+        - Produits
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/q'
+      responses:
+        '200':
+          description: Produits trouvés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Produit'
+
+  /commandes:
+    get:
+      summary: Liste paginée des commandes
+      tags:
+        - Commandes
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+      responses:
+        '200':
+          description: Liste des commandes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Commande'
+    post:
+      summary: Créer une nouvelle commande
+      tags:
+        - Commandes
+      security:
+        - BasicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Commande'
+      responses:
+        '201':
+          description: Commande créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commande'
+
+components:
+  schemas:
+    Utilisateur:
+      type: object
+      properties:
+        id:
+          type: integer
+        nom:
+          type: string
+        email:
+          type: string
+          format: email
+
+    Tâche:
+      type: object
+      properties:
+        id:
+          type: integer
+        titre:
+          type: string
+        complétée:
+          type: boolean
+          default: false
+      required:
+        - titre
+
+    Produit:
+      type: object
+      properties:
+        nom:
+          type: string
+        date_expiration:
+          type: string
+          format: date-time
+        prix:
+          type: number
+          format: float
+      required:
+        - nom
+        - date_expiration
+        - prix
+
+    Commande:
+      type: object
+      properties:
+        identifiant:
+          type: integer
+          readOnly: true
+        nom_client:
+          type: string
+        date_création:
+          type: string
+          format: date-time
+          readOnly: true
+        montant_total:
+          type: number
+          format: float
+      required:
+        - nom_client
+        - montant_total
+
+    Erreur:
+      type: object
+      properties:
+        erreur:
+          type: string
+        message:
+          type: string
+        horodatage:
+          type: string
+          format: date-time
+
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Numéro de page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    size:
+      name: size
+      in: query
+      description: Taille de la page
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    limit:
+      name: limit
+      in: query
+      description: Nombre maximum d'éléments
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+    q:
+      name: q
+      in: query
+      description: Terme de recherche
+      required: false
+      schema:
+        type: string
+    idPath:
+      name: id
+      in: path
+      required: true
+      description: Identifiant unique
+      schema:
+        type: integer
+
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: Authentification basique
+
+  responses:
+    NotFound:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            erreur: "Non Trouvé"
+            message: "La ressource demandée n'existe pas"
+            horodatage: "2024-08-21T10:00:00Z"
+
+    BadRequest:
+      description: Requête invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erreur'
+          example:
+            erreur: "Mauvaise requête"
+            message: "Paramètres de requête invalides"
+            horodatage: "2024-08-21T10:00:00Z"
+
+security:
+  - BasicAuth: []
